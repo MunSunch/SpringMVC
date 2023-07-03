@@ -22,11 +22,17 @@ public class PostService {
   }
 
   public Post save(Post post) {
-    return repository.save(post);
+    if(post.getId() == 0) {
+      return repository.save(post);
+    } else {
+      return repository.update(post);
+    }
   }
 
-  public void removeById(long id) {
+  public Post removeById(long id) {
+    var removedPost = repository.getById(id).orElseThrow(NotFoundException::new);
     repository.removeById(id);
+    return removedPost;
   }
 }
 
