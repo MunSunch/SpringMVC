@@ -1,10 +1,12 @@
 package ru.netology.servlet;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import ru.netology.controller.PostController;
 import ru.netology.mapping.impl.PostMapperImpl;
 import ru.netology.repository.PostRepository;
 import ru.netology.service.PostService;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,11 +16,9 @@ public class MainServlet extends HttpServlet {
   public static final String APPLICATION_JSON = "application/json";
 
   @Override
-  public void init() {
-    final var repository = new PostRepository();
-    final var service = new PostService(repository);
-    final var mapper = new PostMapperImpl();
-    controller = new PostController(service, mapper);
+  public void init() throws ServletException {
+    var context = new AnnotationConfigApplicationContext("ru.netology");
+    controller = context.getBean(PostController.class);
   }
 
   @Override

@@ -1,5 +1,7 @@
 package ru.netology.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import ru.netology.exception.NotFoundException;
 import ru.netology.mapping.PostMapper;
 import ru.netology.model.Post;
@@ -10,10 +12,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 
+@Controller
 public class PostController {
   private final PostService service;
   private final PostMapper mapper;
 
+  @Autowired
   public PostController(PostService service, PostMapper mapper) {
     this.service = service;
     this.mapper = mapper;
