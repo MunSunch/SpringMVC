@@ -1,11 +1,7 @@
 package ru.netology.servlet;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import ru.netology.config.Config;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.netology.controller.PostController;
-import ru.netology.mapping.impl.PostMapperImpl;
-import ru.netology.repository.PostRepository;
-import ru.netology.service.PostService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,7 +14,7 @@ public class MainServlet extends HttpServlet {
 
   @Override
   public void init() throws ServletException {
-    var context = new AnnotationConfigApplicationContext(Config.class);
+    var context = new ClassPathXmlApplicationContext("beans.xml");
     controller = context.getBean(PostController.class);
   }
 
