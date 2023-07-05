@@ -7,7 +7,6 @@ import ru.netology.model.Post;
 
 import java.util.List;
 
-@Component
 public class PostMapperImpl implements PostMapper {
     private final Gson gson;
 

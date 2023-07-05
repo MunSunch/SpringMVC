@@ -12,12 +12,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 
-@Controller
 public class PostController {
   private final PostService service;
   private final PostMapper mapper;
 
-  @Autowired
   public PostController(PostService service, PostMapper mapper) {
     this.service = service;
     this.mapper = mapper;

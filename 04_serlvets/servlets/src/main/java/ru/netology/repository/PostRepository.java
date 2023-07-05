@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 // Stub
-@Repository
 public class PostRepository {
   private ConcurrentSkipListSet<Post> db;
   private static AtomicLong counter;
