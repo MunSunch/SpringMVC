@@ -3,53 +3,49 @@ package ru.netology.repository;
 import org.springframework.stereotype.Repository;
 import ru.netology.exception.NotFoundException;
 import ru.netology.model.Post;
+import ru.netology.model.Status;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
-// Stub
+@Repository
 public class PostRepository {
-  private ConcurrentSkipListSet<Post> db;
+  private final ConcurrentHashMap<Long, Post> db;
   private static AtomicLong counter;
 
   public PostRepository() {
     counter = new AtomicLong(1);
-    db = new ConcurrentSkipListSet<>((x,y)-> (int) (x.getId()-y.getId()));
-      db.add(new Post(counter.getAndIncrement(), "post#1"));
-      db.add(new Post(counter.getAndIncrement(), "post#2"));
-      db.add(new Post(counter.getAndIncrement(), "post#3"));
+    db = new ConcurrentHashMap<>();
+      db.put(counter.incrementAndGet(), new Post(counter.get(), "post#1", "MunSun", Status.ACTIVE));
+      db.put(counter.incrementAndGet(), new Post(counter.get(), "post#2", "MunSun", Status.ACTIVE));
+      db.put(counter.incrementAndGet(), new Post(counter.get(), "post#3", "MunSun", Status.ACTIVE));
   }
 
   public List<Post> all() {
-    return new ArrayList<>(db);
+    return new ArrayList<>(db.values());
   }
 
   public Optional<Post> getById(long id) {
-    return db.stream()
-            .filter(x -> x.getId()==id)
-            .findFirst();
+    return Optional.ofNullable(db.get(id));
   }
 
   public Post save(Post post) {
-    post.setId(counter.getAndIncrement());
-    db.add(post);
+    post.setId(counter.incrementAndGet());
+    post.setStatus(Status.ACTIVE);
+    db.put(counter.get(), post);
     return post;
   }
 
   public Post update(Post post) {
     var oldPost = getById(post.getId()).orElseThrow(NotFoundException::new);
-    removeById(post.getId());
-    db.add(post);
-    return oldPost;
+    db.replace(post.getId(), oldPost, post);
+    return post;
   }
 
-  public void removeById(long id) {
-    db.removeIf(x -> x.getId()==id);
+  public Post removeById(long id) {
+    return db.remove(id);
   }
 }

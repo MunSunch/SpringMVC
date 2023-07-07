@@ -1,31 +1,28 @@
 package ru.netology.mapping.impl;
 
-import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
+import ru.netology.dto.PostDtoIn;
+import ru.netology.dto.PostDtoOut;
 import ru.netology.mapping.PostMapper;
 import ru.netology.model.Post;
+import ru.netology.model.Status;
 
-import java.util.List;
-
+@Component
 public class PostMapperImpl implements PostMapper {
-    private final Gson gson;
-
-    public PostMapperImpl() {
-        this.gson = new Gson();
+    @Override
+    public Post toPost(PostDtoIn postDtoIn) {
+        Post post = new Post();
+            post.setContent(postDtoIn.getMessage());
+            post.setAuthor(postDtoIn.getAuthor());
+        return post;
     }
 
     @Override
-    public String toJSON(Post post) {
-        return gson.toJson(post);
-    }
-
-    @Override
-    public Post toPost(String json) {
-        return gson.fromJson(json, Post.class);
-    }
-
-    @Override
-    public String toJSON(List<Post> posts) {
-        return gson.toJson(posts);
+    public PostDtoOut toPostDtoOut(Post post) {
+        PostDtoOut postDtoOut = new PostDtoOut();
+            postDtoOut.setId(post.getId());
+            postDtoOut.setMessage(post.getContent());
+            postDtoOut.setAuthor(post.getAuthor());
+        return postDtoOut;
     }
 }

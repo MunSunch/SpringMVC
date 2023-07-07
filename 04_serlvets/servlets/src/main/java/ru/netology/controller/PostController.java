@@ -1,7 +1,11 @@
 package ru.netology.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import ru.netology.dto.PostDtoIn;
+import ru.netology.dto.PostDtoOut;
 import ru.netology.exception.NotFoundException;
 import ru.netology.mapping.PostMapper;
 import ru.netology.model.Post;
@@ -11,57 +15,45 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.List;
 
+@RestController
+@RequestMapping("/posts")
 public class PostController {
   private final PostService service;
   private final PostMapper mapper;
 
+  @Autowired
   public PostController(PostService service, PostMapper mapper) {
     this.service = service;
     this.mapper = mapper;
   }
 
-  public void all(HttpServletResponse response) throws IOException {
-    final var data = service.all();
-    response.getWriter().print(mapper.toJSON(data));
+  @GetMapping("/all")
+  public List<PostDtoOut> allActive() throws IOException {
+    return service.allActive();
   }
 
-  public void getById(long id, HttpServletResponse response) {
-    // TODO: deserialize request & serialize response
-    try{
-      Post post = service.getById(id);
-      response.getWriter().print(mapper.toJSON(post));
-    } catch (NotFoundException e) {
-      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  @GetMapping("/get/{id}")
+  public PostDtoOut getById(@PathVariable(name="id") long id) {
+    return service.getById(id);
   }
 
-  public void save(Reader body, HttpServletResponse response) throws IOException {
-    try {
-      final var post = mapper.toPost(readBody(body));
-      final var data = service.save(post);
-      response.getWriter().print(mapper.toJSON(data));
-    } catch (NotFoundException e) {
-      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
+  @PostMapping("/save")
+  @ResponseStatus(HttpStatus.CREATED)
+  public PostDtoOut save(@RequestBody PostDtoIn post) throws IOException {
+    post.setAuthor(Thread.currentThread().getName());
+    return service.save(post);
   }
 
-  private String readBody(Reader body) throws IOException {
-    int limit = 4096;
-    char[] buffer = new char[limit];
-    int end = body.read(buffer);
-    String result = new String(Arrays.copyOfRange(buffer, 0, end));
-    return result;
+  @PutMapping("/update/{id}")
+  public PostDtoOut update(@PathVariable(name="id") long id, @RequestBody PostDtoIn post) {
+    post.setAuthor(Thread.currentThread().getName());
+    return service.update(id, post);
   }
 
-  public void removeById(long id, HttpServletResponse response) throws IOException {
-    try {
-      var removedPost = service.removeById(id);
-      response.getWriter().print(mapper.toJSON(removedPost));
-    } catch (NotFoundException e) {
-      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-    }
+  @DeleteMapping("/remove/{id}")
+  public PostDtoOut removeById(@PathVariable(name="id") long id) throws IOException {
+    return service.removeById(id);
   }
 }

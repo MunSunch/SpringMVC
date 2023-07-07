@@ -2,39 +2,66 @@ package ru.netology.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.netology.dto.PostDtoIn;
+import ru.netology.dto.PostDtoOut;
 import ru.netology.exception.NotFoundException;
+import ru.netology.mapping.PostMapper;
 import ru.netology.model.Post;
+import ru.netology.model.Status;
 import ru.netology.repository.PostRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Service
 public class PostService {
   private final PostRepository repository;
+  private final PostMapper mapper;
 
-  public PostService(PostRepository repository) {
+  @Autowired
+  public PostService(PostRepository repository, PostMapper mapper) {
     this.repository = repository;
+    this.mapper = mapper;
   }
 
-  public List<Post> all() {
-    return repository.all();
+  public PostDtoOut getById(long id) {
+    var post = repository.getById(id).orElseThrow(NotFoundException::new);
+    if(!isActivePost(post))
+      throw new NotFoundException();
+    return mapper.toPostDtoOut(post);
   }
 
-  public Post getById(long id) {
-    return repository.getById(id).orElseThrow(NotFoundException::new);
+  public PostDtoOut save(PostDtoIn postDtoIn) {
+    var out = repository.save(mapper.toPost(postDtoIn));
+    return mapper.toPostDtoOut(out);
   }
 
-  public Post save(Post post) {
-    if(post.getId() == 0) {
-      return repository.save(post);
-    } else {
-      return repository.update(post);
-    }
+  public PostDtoOut update(long id, PostDtoIn postDtoIn) {
+    var post = repository.getById(id).orElseThrow(NotFoundException::new);
+    if(!isActivePost(post))
+      throw new NotFoundException();
+    post.setId(post.getId());
+    post.setContent(postDtoIn.getMessage());
+    post.setAuthor(postDtoIn.getAuthor());
+    return mapper.toPostDtoOut(repository.update(post));
   }
 
-  public Post removeById(long id) {
+  public PostDtoOut removeById(long id) {
     var removedPost = repository.getById(id).orElseThrow(NotFoundException::new);
-    repository.removeById(id);
-    return removedPost;
+    removedPost.setStatus(Status.REMOVED);
+    repository.update(removedPost);
+    return mapper.toPostDtoOut(removedPost);
+  }
+
+  public List<PostDtoOut> allActive() {
+    return repository.all().stream()
+            .filter(this::isActivePost)
+            .map(mapper::toPostDtoOut)
+            .collect(Collectors.toList());
+  }
+
+  private boolean isActivePost(Post post) {
+    return post.getStatus() == Status.ACTIVE;
   }
 }
 
