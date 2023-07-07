@@ -1,5 +1,7 @@
 package ru.netology.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import ru.netology.exception.NotFoundException;
 import ru.netology.mapping.PostMapper;
 import ru.netology.model.Post;

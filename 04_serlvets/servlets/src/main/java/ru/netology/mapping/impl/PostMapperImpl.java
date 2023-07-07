@@ -1,6 +1,7 @@
 package ru.netology.mapping.impl;
 
 import com.google.gson.Gson;
+import org.springframework.stereotype.Component;
 import ru.netology.mapping.PostMapper;
 import ru.netology.model.Post;
 
